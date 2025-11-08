@@ -1,0 +1,38 @@
+# C7i Instance - Compute optimized workload (Video Encoder)
+name: video-encoder
+instance_type: c7i.large
+instance_count: 2
+
+# Team tag
+team: media
+
+# Monitoring
+monitoring: true
+ebs_optimized: true
+
+# Root volume configuration (볼륨 사이즈/성능만 설정 가능, 암호화/타입은 main.tf에서 강제)
+root_block_device:
+  - volume_size: 100
+    iops: 3000
+    throughput: 125
+
+# Additional EBS volume for temporary encoding work (암호화/타입은 main.tf에서 강제)
+ebs_volumes:
+  - size: 50
+    iops: 5000
+    throughput: 250
+  - size: 50
+    iops: 5000
+    throughput: 250
+
+# # Metadata options (IMDSv2 recommended)
+# metadata_options:
+#   http_endpoint: enabled
+#   http_tokens: required
+#   http_put_response_hop_limit: 1
+
+# Instance tags
+instance_tags:
+  Name: video-encoder
+  Workload: encoding
+  InstanceFamily: compute-optimized

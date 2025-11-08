@@ -1,0 +1,29 @@
+# M7i-flex Instance - Memory optimized workload (API Server)
+name: api-server
+instance_type: m7i-flex.large
+instance_count: 3
+
+# Team tag
+team: backend
+
+# Monitoring
+monitoring: true
+ebs_optimized: true
+
+# Root volume configuration (볼륨 사이즈/성능만 설정 가능, 암호화/타입은 main.tf에서 강제)
+root_block_device:
+  - volume_size: 50
+    iops: 3000
+    throughput: 125
+
+# # Metadata options (IMDSv2 recommended)
+# metadata_options:
+#   http_endpoint: enabled
+#   http_tokens: required
+#   http_put_response_hop_limit: 1
+
+# Instance tags
+instance_tags:
+  Name: api-server
+  Workload: api
+  InstanceFamily: memory-optimized
