@@ -1,24 +1,24 @@
 data "aws_availability_zones" "available" {}
 
 locals {
-    name = "my-vpc"
-    vpc_cidr = "10.50.0.0/16"
-    azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+  name     = var.vpc_name
+  vpc_cidr = var.vpc_cidr
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
-  private_subnets     = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
-  public_subnets      = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 8)]
+  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k)]
+  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 8)]
   tags = {
-    Terraform = "true"
-    Environment = "dev"
+    Terraform   = "true"
+    Environment = var.environment
   }
 }
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  name = local.name
+  name   = local.name
   region = "ap-northeast-2"
-  cidr = local.vpc_cidr
+  cidr   = local.vpc_cidr
 
   azs             = local.azs
   private_subnets = local.private_subnets

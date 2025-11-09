@@ -2,10 +2,6 @@ locals {
   region  = "ap-northeast-2"
   profile = "playground-admin"
 
-  account_id = {
-    local = "123456789012"
-  }
-
   is_local = var.environment == "local"
 }
 

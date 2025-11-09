@@ -1,9 +1,3 @@
-project-init:
-	@echo "Installing dependencies..."
-	brew install localstack/tap/localstack-cli;
-	pip install terraform-local;
-	localstack start -d;
-
 fmt:
 	@echo "Validating Terraform files..."
 	terraform validate;
@@ -33,7 +27,3 @@ ifeq ($(ENV),local)
 else
 	TF_VAR_environment=$(ENV) terraform apply;
 endif
-
-local-status:
-	@echo "Checking LocalStack status..."
-	localstack status services
