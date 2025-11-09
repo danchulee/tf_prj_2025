@@ -1,5 +1,5 @@
 # 팀별 SSM 접근 제어를 위한 IAM Policy 및 Role
-# 각 팀은 자신의 Managed_Team 태그가 있는 인스턴스만 접근 가능
+# 각 팀은 자신의 Team 태그가 있는 인스턴스만 접근 가능
 
 # 현재 계정 ID 가져오기
 data "aws_caller_identity" "current" {}
@@ -7,6 +7,10 @@ data "aws_caller_identity" "current" {}
 locals {
   teams      = toset(["platform", "backend", "media"])
   account_id = data.aws_caller_identity.current.account_id
+  tags = {
+    Terraform   = "true"
+    Environment = var.environment
+  }
 }
 
 # 팀별 IAM Policy Document
@@ -38,7 +42,7 @@ data "aws_iam_policy_document" "team_ssm_access" {
     ]
     condition {
       test     = "StringEquals"
-      variable = "ssm:resourceTag/Managed_Team"
+      variable = "ssm:resourceTag/Team"
       values   = [each.key]
     }
   }
@@ -70,27 +74,13 @@ data "aws_iam_policy_document" "team_ssm_access" {
   }
 }
 
-# 팀별 IAM Policy 생성
-resource "aws_iam_policy" "team_ssm_access" {
-  for_each = local.teams
-
-  name        = "SSMAccess-${each.key}-team"
-  description = "Allow SSM access to ${each.key} team instances only"
-  policy      = data.aws_iam_policy_document.team_ssm_access[each.key].json
-
-  tags = {
-    Team      = each.key
-    Terraform = "true"
-  }
-}
-
 # 팀별 IAM Role 생성
 # 같은 계정의 모든 IAM User/Role이 assume 가능
-resource "aws_iam_role" "team_ssm_role" {
+resource "aws_iam_role" "team_role" {
   for_each = local.teams
 
-  name        = "SSMRole-${each.key}-team"
-  description = "SSM access role for ${each.key} team"
+  name        = "${each.key}-team-role"
+  description = "Role for ${each.key} team"
 
   # 같은 계정의 모든 Principal이 assume 가능 (테스트용)
   assume_role_policy = jsonencode({
@@ -111,41 +101,16 @@ resource "aws_iam_role" "team_ssm_role" {
     ]
   })
 
-  tags = {
-    Team      = each.key
-    Terraform = "true"
-  }
+  tags = merge(local.tags, {
+    Team = each.key
+  })
 }
 
-# Policy를 Role에 연결
-resource "aws_iam_role_policy_attachment" "team_ssm_access" {
+# Inline Policy로 직접 연결 (1:1 매핑, 재사용 없음)
+resource "aws_iam_role_policy" "team_ssm_access" {
   for_each = local.teams
 
-  role       = aws_iam_role.team_ssm_role[each.key].name
-  policy_arn = aws_iam_policy.team_ssm_access[each.key].arn
-}
-
-# Outputs
-output "team_ssm_policy_arns" {
-  description = "ARNs of team-specific SSM access policies"
-  value = {
-    for team, policy in aws_iam_policy.team_ssm_access :
-    team => policy.arn
-  }
-}
-
-output "team_ssm_role_arns" {
-  description = "ARNs of team-specific SSM access roles"
-  value = {
-    for team, role in aws_iam_role.team_ssm_role :
-    team => role.arn
-  }
-}
-
-output "assume_role_commands" {
-  description = "Commands to assume each team role"
-  value = {
-    for team in local.teams :
-    team => "aws sts assume-role --role-arn ${aws_iam_role.team_ssm_role[team].arn} --role-session-name ${team}-session --external-id ${team}-team-access"
-  }
+  name   = "SSMAccess"
+  role   = aws_iam_role.team_role[each.key].id
+  policy = data.aws_iam_policy_document.team_ssm_access[each.key].json
 }
