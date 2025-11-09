@@ -6,10 +6,6 @@ instance_count: 1
 # Team tag
 team: platform
 
-# Subnet 배치 (선택 사항)
-# subnet_index: 0  # 0=AZ-1, 1=AZ-2, 2=AZ-3
-# 지정하지 않으면 인스턴스 이름 해시 기반으로 자동 분산 배치
-
 # Monitoring
 monitoring: true
 ebs_optimized: true
@@ -17,12 +13,6 @@ ebs_optimized: true
 # Root volume configuration (볼륨 사이즈만 설정 가능, 암호화/타입은 main.tf에서 강제)
 root_block_device:
   - volume_size: 30
-
-# # Metadata options (IMDSv2 recommended)
-# metadata_options:
-#   http_endpoint: enabled
-#   http_tokens: required
-#   http_put_response_hop_limit: 1
 
 # Instance tags
 instance_tags:

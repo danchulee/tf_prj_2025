@@ -12,14 +12,27 @@ locals {
     for file in local.yaml_files :
     trimsuffix(file, ".yaml") => yamldecode(file("${path.module}/ec2_info/${file}"))
   }
+
+  tags = {
+    Terraform   = "true"
+    Environment = var.environment
+  }
 }
 
-# Security Group for EC2 instances
+# ============================================================================
+# Security Group for EC2 instances (하드코딩 - 정책 강제)
+# ============================================================================
+# 설계 의도:
+# - Egress만 허용하고 Ingress는 별도 정의 (의도치 않은 인바운드 규칙 추가 방지)
+# - 변수로 노출하지 않아 실수로 잘못된 규칙을 추가하는 것 차단
+# - 보안 정책을 코드 레벨에서 강제
+# ============================================================================
 resource "aws_security_group" "ec2_instances" {
   name_prefix = "my-instances-"
   description = "Security group for EC2 instances"
   vpc_id      = local.vpc_id
 
+  # Egress: 모든 아웃바운드 허용 (하드코딩)
   egress {
     description = "Allow all outbound"
     from_port   = 0
@@ -28,11 +41,11 @@ resource "aws_security_group" "ec2_instances" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
+  # Ingress: 의도적으로 정의하지 않음 (필요 시 ALB/NLB에서 추가)
+
+  tags = merge(local.tags, {
     Name        = "my-instances-sg"
-    Terraform   = "true"
-    Environment = "dev"
-  }
+  })
 }
 
 # EC2 Module - YAML 파일별로 for_each (admin-portal, video-encoder, api-server)
@@ -52,4 +65,6 @@ module "ec2" {
   # Security Group 및 AMI 정보 전달
   security_group_id = aws_security_group.ec2_instances.id
   ami_id            = data.aws_ami.amazon_linux_2023.id
+
+  environment = var.environment
 }

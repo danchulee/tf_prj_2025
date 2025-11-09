@@ -1,7 +1,7 @@
 # C7i Instance - Compute optimized workload (Video Encoder)
 name: video-encoder
 instance_type: c7i.large
-instance_count: 2
+instance_count: 1
 
 # Team tag
 team: media
@@ -24,12 +24,6 @@ ebs_volumes:
   - size: 50
     iops: 5000
     throughput: 250
-
-# # Metadata options (IMDSv2 recommended)
-# metadata_options:
-#   http_endpoint: enabled
-#   http_tokens: required
-#   http_put_response_hop_limit: 1
 
 # Instance tags
 instance_tags:

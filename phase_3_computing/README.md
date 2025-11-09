@@ -179,7 +179,7 @@ iam_role_policies = {
 tags = {
   Terraform      = "true"
   Environment    = "dev"
-  Managed_Team   = var.config.team          # YAML에서 정의
+  Team   = var.config.team          # YAML에서 정의
   InstanceIndex  = each.key                 # 0, 1, 2, ...
   InstanceFamily = var.config.name          # admin-portal, video-encoder, ...
 }

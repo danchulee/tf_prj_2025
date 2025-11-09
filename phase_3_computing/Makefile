@@ -1,14 +1,7 @@
-project-init:
-	@echo "Installing dependencies..."
-	brew install localstack/tap/localstack-cli;
-	pip install terraform-local;
-	localstack start -d;
-
 fmt:
 	@echo "Validating Terraform files..."
 	terraform validate;
 	terraform fmt --recursive --check;
-
 
 init:
 	@echo "Initializing Terraform..."
@@ -34,6 +27,10 @@ else
 	TF_VAR_environment=$(ENV) terraform apply;
 endif
 
-local-status:
-	@echo "Checking LocalStack status..."
-	localstack status services
+destroy:
+	@echo "Destroying Terraform resources..."
+ifeq ($(ENV),local)
+	TF_VAR_environment=local tflocal destroy;
+else
+	TF_VAR_environment=$(ENV) terraform destroy;
+endif

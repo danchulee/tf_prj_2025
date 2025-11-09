@@ -1,7 +1,7 @@
 # M7i-flex Instance - Memory optimized workload (API Server)
 name: api-server
 instance_type: m7i-flex.large
-instance_count: 3
+instance_count: 1 # 수평확장 가능성을 염두에 두고 설계
 
 # Team tag
 team: backend
@@ -15,12 +15,6 @@ root_block_device:
   - volume_size: 50
     iops: 3000
     throughput: 125
-
-# # Metadata options (IMDSv2 recommended)
-# metadata_options:
-#   http_endpoint: enabled
-#   http_tokens: required
-#   http_put_response_hop_limit: 1
 
 # Instance tags
 instance_tags:
