@@ -8,15 +8,21 @@ EC2 인스턴스를 YAML 기반으로 선언적으로 관리하는 Terraform 모
 computing/
 ├── main.tf                          # 1st for_each: YAML 파일별 모듈 호출
 ├── data.tf                          # VPC remote state, AMI 데이터 소스
-├── ec2_info/                        # 서비스별 EC2 설정 (YAML)
+├── server_info/                     # 서비스별 서버 설정 (YAML) - EC2 및 ALB 포함
 │   ├── admin-portal.yaml
 │   ├── video-encoder.yaml
 │   └── api-server.yaml
 └── modules/
-    └── ec2/
-        ├── main.tf                  # 2nd for_each: instance_count만큼 인스턴스 생성
+    ├── ec2/
+    │   ├── main.tf                  # 2nd for_each: instance_count만큼 인스턴스 생성
+    │   ├── security_group.tf        # 서비스군별 Security Group
+    │   ├── iam.tf                   # 서비스군별 IAM Instance Profile
+    │   ├── variables.tf             # 모듈 입력 변수
+    │   └── outputs.tf               # 모듈 출력 (instance IDs, IPs, SG ID)
+    └── alb/
+        ├── main.tf                  # ALB 리소스
         ├── variables.tf             # 모듈 입력 변수
-        └── outputs.tf               # 모듈 출력 (instance IDs, IPs, ARNs)
+        └── outputs.tf               # 모듈 출력 (DNS, SG ID)
 ```
 
 ## 설계 철학 및 고려사항
@@ -81,7 +87,7 @@ module.ec2["api-server"].module.ec2_instance["2"]       # api-server-2
 
 **해결**:
 ```yaml
-# ec2_info/api-server.yaml
+# server_info/api-server.yaml
 instance_count: 3  # 이 값만 변경하면 됨
 ```
 
@@ -210,7 +216,7 @@ instance_tags:
 **확장 예시**:
 ```
 computing/
-├── ec2_info/
+├── server_info/
 │   ├── dev/
 │   │   └── *.yaml
 │   ├── staging/
@@ -221,16 +227,21 @@ computing/
 
 ### 10. 보안 그룹 설계
 
-**현재**: 모든 EC2가 하나의 보안 그룹 공유
+**현재**: 서비스군별 독립적인 Security Group
 
-**이유**:
-- 초기 단계에서는 단순하게 시작
-- Egress: 모든 아웃바운드 허용 (인터넷 접근)
-- Ingress: 별도 정의 필요 (ALB/NLB에서 추가 예정)
+**구조**:
+- `modules/ec2/security_group.tf`에서 서비스군별 SG 생성
+- `admin-portal-sg`, `video-encoder-sg`, `api-server-sg` 각각 분리
+- ALB→EC2 규칙은 `main.tf`에서 `aws_security_group_rule`로 추가
 
-**향후 개선**:
-- 서비스별 보안 그룹 분리
-- Least privilege 원칙 적용
+**장점**:
+- 각 서비스군이 독립적인 보안 그룹 소유
+- ALB가 있는 서비스만 해당 ALB의 규칙 적용
+- Least privilege 원칙 적용 (불필요한 규칙 차단)
+
+**예시**:
+- `admin-portal-sg`: admin-portal ALB → admin-portal EC2만 허용
+- `video-encoder-sg`: ALB 없음 → Ingress 규칙 없음
 
 ## 사용법
 
@@ -238,7 +249,7 @@ computing/
 
 1. **YAML 파일 생성**:
 ```yaml
-# ec2_info/new-service.yaml
+# server_info/new-service.yaml
 name: new-service
 instance_type: t3a.medium
 instance_count: 2
@@ -264,7 +275,7 @@ terraform apply
 ### 스케일 아웃
 
 ```yaml
-# ec2_info/api-server.yaml
+# server_info/api-server.yaml
 instance_count: 5  # 3 -> 5로 변경
 ```
 
@@ -300,7 +311,7 @@ ENV=local make apply
 ### 제약사항
 1. **정책 변경 불가**: EBS 암호화, gp3, T 시리즈 credits는 코드 수정 필요
 2. **인스턴스 순서**: for_each 특성상 마지막 인덱스부터 제거됨
-3. **보안 그룹 공유**: 모든 인스턴스가 같은 보안 그룹 사용
+3. **HTTP만 사용**: 테스트 환경이므로 ACM 인증서 미사용, HTTP(80)만 사용
 
 ### 트레이드오프
 - **유연성 vs 정책 강제**: 정책 강제를 선택 (보안/비용 우선)

@@ -18,3 +18,8 @@ output "instance_arns" {
     for k, v in module.ec2_instance : k => v.arn
   }
 }
+
+output "security_group_id" {
+  description = "Security Group ID for this service group"
+  value       = aws_security_group.ec2.id
+}

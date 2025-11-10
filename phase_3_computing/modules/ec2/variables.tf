@@ -39,11 +39,6 @@ variable "vpc_cidr_block" {
   type        = string
 }
 
-variable "security_group_id" {
-  description = "Security group ID for EC2 instances"
-  type        = string
-}
-
 variable "ami_id" {
   description = "AMI ID for EC2 instances"
   type        = string

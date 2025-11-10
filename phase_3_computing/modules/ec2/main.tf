@@ -23,8 +23,8 @@ module "ec2_instance" {
     coalesce(var.config.subnet_index, abs(parseint(substr(md5("${var.config.name}-${each.key}"), 0, 8), 16)) % length(var.private_subnets))
   ]
 
-  vpc_security_group_ids = [var.security_group_id]
-  # 보안 그룹은 상위에서 생성하여 전달. 중복 생성 방지.
+  vpc_security_group_ids = [aws_security_group.ec2.id]
+  # 보안 그룹은 security_group.tf에서 생성. 중복 생성 방지.
   create_security_group  = false
 
   monitoring    = var.config.monitoring
