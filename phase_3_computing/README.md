@@ -25,10 +25,10 @@
 
 ## 생성 리소스
 
-**EC2 인스턴스 (6개)**
+**EC2 인스턴스 (3개)**
 - admin-portal-0 (t3a.medium, Team=platform)
-- video-encoder-0,1 (c7i.large, Team=media)
-- api-server-0,1,2 (m7i-flex.large, Team=backend)
+- video-encoder-0 (c7i.large, Team=media)
+- api-server-0 (m7i-flex.large, Team=backend)
 
 **ALB (2개)**
 - admin-portal-alb (Internal) - admin-portal 인스턴스 타겟
