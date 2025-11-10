@@ -1,4 +1,4 @@
-# Phase 2: IAM
+# Phase 2: IAM (OPTIONAL)
 
 ## 설계 철학 및 고려사항
 
