@@ -5,7 +5,7 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  teams      = toset(["platform", "backend", "media"])
+  teams      = toset(var.teams)
   account_id = data.aws_caller_identity.current.account_id
   tags = {
     Terraform   = "true"
@@ -92,11 +92,6 @@ resource "aws_iam_role" "team_role" {
           AWS = "arn:aws:iam::${local.account_id}:root"
         }
         Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "sts:ExternalId" = "${each.key}-team-access"
-          }
-        }
       }
     ]
   })
