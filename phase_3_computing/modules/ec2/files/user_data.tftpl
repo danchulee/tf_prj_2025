@@ -1,0 +1,57 @@
+#!/bin/bash
+# Cloud-init script for Amazon Linux 2023
+# This script installs and configures nginx
+# Service Name: ${service_name}
+
+set -e
+
+# Update system packages
+dnf update -y
+
+# Install nginx
+dnf install -y nginx
+
+# Service name from Terraform
+SERVICE_NAME=${service_name}
+
+# Create nginx configuration
+cat > /etc/nginx/nginx.conf <<'EOF'
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log notice;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+
+    sendfile            on;
+    tcp_nopush          on;
+    keepalive_timeout   65;
+    types_hash_max_size 4096;
+
+    default_type        text/plain;
+
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  _;
+
+        location /health {
+            return 200 "Service: ${service_name}";
+        }
+    }
+}
+EOF
+
+# Enable and start nginx
+systemctl enable nginx
+systemctl start nginx
+systemctl reload nginx

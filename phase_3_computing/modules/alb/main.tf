@@ -66,7 +66,7 @@ module "alb" {
       health_check = {
         enabled             = true
         interval            = try(var.config.health_check.interval, 30)
-        path                = try(var.config.health_check.path, "/")
+        path                = try(var.config.health_check.path, "/health")
         port                = "traffic-port"
         healthy_threshold   = try(var.config.health_check.healthy_threshold, 2)
         unhealthy_threshold = try(var.config.health_check.unhealthy_threshold, 2)
