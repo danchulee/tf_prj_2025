@@ -3,3 +3,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "profile" {
+  description = "AWS CLI profile to use"
+  type        = string
+  default     = "playground-admin"
+}

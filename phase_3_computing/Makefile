@@ -1,36 +1,21 @@
 fmt:
+	@echo "Formatting Terraform files..."
+	terraform fmt -recursive
 	@echo "Validating Terraform files..."
-	terraform validate;
-	terraform fmt --recursive --check;
+	terraform validate
 
 init:
 	@echo "Initializing Terraform..."
-ifeq ($(ENV),local)
-	TF_VAR_environment=local tflocal init;
-else
-	TF_VAR_environment=$(ENV) terraform init;
-endif
+	TF_VAR_environment=$(ENV) TF_VAR_profile=$(PROFILE) terraform init
 
 plan:
 	@echo "Planning Terraform..."
-ifeq ($(ENV),local)
-	TF_VAR_environment=local tflocal plan;
-else
-	TF_VAR_environment=$(ENV) terraform plan;
-endif
+	TF_VAR_environment=$(ENV) TF_VAR_profile=$(PROFILE) terraform plan
 
 apply:
 	@echo "Applying Terraform..."
-ifeq ($(ENV),local)
-	TF_VAR_environment=local tflocal apply;
-else
-	TF_VAR_environment=$(ENV) terraform apply;
-endif
+	TF_VAR_environment=$(ENV) TF_VAR_profile=$(PROFILE) terraform apply
 
 destroy:
 	@echo "Destroying Terraform resources..."
-ifeq ($(ENV),local)
-	TF_VAR_environment=local tflocal destroy;
-else
-	TF_VAR_environment=$(ENV) terraform destroy;
-endif
+	TF_VAR_environment=$(ENV) TF_VAR_profile=$(PROFILE) terraform destroy
