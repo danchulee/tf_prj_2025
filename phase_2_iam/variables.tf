@@ -9,3 +9,9 @@ variable "teams" {
   type        = list(string)
   default     = ["platform", "backend", "media"]
 }
+
+variable "profile" {
+  description = "The AWS CLI profile to use"
+  type        = string
+  default     = "playground-admin"
+}

@@ -109,3 +109,11 @@ resource "aws_iam_role_policy" "team_ssm_access" {
   role   = aws_iam_role.team_role[each.key].id
   policy = data.aws_iam_policy_document.team_ssm_access[each.key].json
 }
+
+# ReadOnlyAccess 권한 추가 (콘솔에서 EC2 리스트 확인 및 SSM 테스트용)
+resource "aws_iam_role_policy_attachment" "team_readonly_access" {
+  for_each = local.teams
+
+  role       = aws_iam_role.team_role[each.key].name
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}

@@ -10,6 +10,6 @@ output "assume_role_commands" {
   description = "Commands to assume each team role"
   value = {
     for team in local.teams :
-    team => "aws sts assume-role --role-arn ${aws_iam_role.team_role[team].arn} --role-session-name ${team}-session --external-id ${team}-team-access"
+    team => "https://signin.aws.amazon.com/switchrole?roleName=${team}-team-role&account=${data.aws_iam_account_alias.current.account_alias}"
   }
 }
