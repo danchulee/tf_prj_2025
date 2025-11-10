@@ -1,6 +1,6 @@
 # AWS Infrastructure as Code
 
-Terraform을 사용한 3-tier 웹 애플리케이션 인프라 구성 프로젝트입니다.
+Terraform을 사용한 웹 애플리케이션 인프라 구성 프로젝트입니다.
 
 ## 요구사항
 
