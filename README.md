@@ -247,8 +247,5 @@ cd phase_2_iam && terraform output assume_role_commands
 ```
 
 **ALB Health Check** (api-server.yaml의 allow_cidrs에 본인 IP 추가 필수)
-```bash
-curl http://$(cd phase_3_computing && terraform output -raw alb_dns_name)/health
-# 응답: Service: api-server
-```
+
 
