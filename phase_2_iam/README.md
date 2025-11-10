@@ -39,7 +39,6 @@
 
 **Role Assume 조건**
 - 같은 계정의 Principal만 Assume 가능
-- External ID 필수 (Confused Deputy 공격 방지)
 
 **SSM 접속 제약**
 - VPC Endpoints 또는 NAT Gateway 필요
