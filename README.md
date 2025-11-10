@@ -17,7 +17,7 @@ Terraform을 사용한 3-tier 웹 애플리케이션 인프라 구성 프로젝�
 - [phase_1_network/outputs.tf](phase_1_network/outputs.tf) - VPC ID, Subnet IDs 출력
 
 ### EC2 인스턴스 생성 (C type, M type, T type)
-- **t3a.medium** (Burstable) - 내부 관리 도구용
+- **t3.large** (Burstable) - 내부 관리 도구용
 - **m7i-flex.large** (Memory Optimized) - 메모리 집약적 작업용
 - **c7i.large** (Compute Optimized) - CPU 집약적 작업용
 
