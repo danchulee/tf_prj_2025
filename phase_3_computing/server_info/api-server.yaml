@@ -21,3 +21,11 @@ instance_tags:
   Name: api-server
   Workload: api
   InstanceFamily: memory-optimized
+
+
+alb:
+  enabled: true
+  name: api-server-alb
+  internal: false
+  allow_cidrs:
+    - 58.230.96.166/32
